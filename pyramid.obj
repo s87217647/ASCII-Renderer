@@ -1,0 +1,17 @@
+# Pyramid Mesh
+# Unit scale: Centered at (0, 0, 0)
+
+# 1. Vertices (x, y, z)
+v -1.0 -1.0 -1.0  # 1: Bottom-Left-Back
+v  1.0 -1.0 -1.0  # 2: Bottom-Right-Back
+v  1.0 -1.0  1.0  # 3: Bottom-Right-Front
+v -1.0 -1.0  1.0  # 4: Bottom-Left-Front
+v  0.0  1.0  0.0  # 5: Top Apex
+
+# 2. Triangular Faces (1-indexed vertex IDs)
+f 1 2 5           # Back side face
+f 2 3 5           # Right side face
+f 3 4 5           # Front side face
+f 4 1 5           # Left side face
+f 1 3 2           # Base floor (Triangle A)
+f 1 4 3           # Base floor (Triangle B)
