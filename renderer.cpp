@@ -94,12 +94,48 @@ int main(){
 
 
     // making the plane
-    int resolutionX = 100;
-    int resolutionY = 75;
+    int resolutionX = 45;
+    int resolutionY = 15;
 
-    Vec3 planeStartPt = planeCenter + planeHorizontal * 4 + planeVertical * 3;
+    Vec3 planeStartPt = planeCenter + planeHorizontal * 3 + planeVertical * 1;
+
+    Vec3 xIncreamental = planeHorizontal * -2 / resolutionX; // double so planeCetner will be in the middle
+    Vec3 yIncreamental = planeVertical * -2 / resolutionY;
+
+
+    char screen[resolutionY][resolutionX];
+    Vec3 pixelLocation[resolutionY][resolutionX];
+
+    pixelLocation[0][0] = planeStartPt;
+
+    for(int i = 1; i < resolutionY; i++){
+        pixelLocation[i][0] = pixelLocation[i - 1][0] + yIncreamental;
+    }
+
+    for (int i = 0; i < resolutionY; i++){
+        for(int j = 1; j < resolutionX; j++){
+            pixelLocation[i][j] = pixelLocation[i][j - 1] + xIncreamental;
+        }
+    }
+
+
+    for(auto row : pixelLocation){
+        for(auto px : row){
+            px.print();
+        }
+    }
+
     
-    planeStartPt.print();
+    Vec3 currentPixel = planeStartPt;
+
+    for (int i = 0; i <= resolutionX; i++){
+        for(int j = 0; j <= resolutionY; j ++){
+
+        }
+    }
+    
+
+
 
 
 
