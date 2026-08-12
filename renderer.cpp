@@ -79,15 +79,27 @@ int main(){
         }    
     }
 
-    //todo: load the view plane - pick a view pt, point to origin
+    //Plane coordinates setup
 
     Vec3 vPt = Vec3{5.0f, 5.0f, 5.0f};
     Vec3 origin = Vec3{0.0f, 0.0f, 0.0f};
 
     Vec3 viewDir = (origin - vPt).normalized();
 
-    viewDir.print();
+    float viewDistance = 2.5;
+    Vec3 planeCenter = vPt + (viewDir * viewDistance);
+    
+    Vec3 planeHorizontal = cross(viewDir, Vec3{0.0f, 0.0f, 1.0f}).normalized();
+    Vec3 planeVertical = cross(planeHorizontal, viewDir).normalized();
 
+
+    // making the plane
+    int resolutionX = 100;
+    int resolutionY = 75;
+
+    Vec3 planeStartPt = planeCenter + planeHorizontal * 4 + planeVertical * 3;
+    
+    planeStartPt.print();
 
 
 
