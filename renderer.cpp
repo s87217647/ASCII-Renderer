@@ -3,12 +3,51 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <cmath>
 
 using namespace std;
 
 struct Vec3 {
-    float x, y, z;
+    float x = 0.0f, y = 0.0f, z = 0.0f;
+
+    // Operator Overloading for Vector Math
+    Vec3 operator+(const Vec3& v) const { return {x + v.x, y + v.y, z + v.z}; }
+    Vec3 operator-(const Vec3& v) const { return {x - v.x, y - v.y, z - v.z}; }
+    Vec3 operator*(float s) const       { return {x * s, y * s, z * s}; }
+    Vec3 operator/(float s) const       { return {x / s, y / s, z / s}; }
+
+    void print() const{
+        printf("x: %f, y : %f, z: %f \n", x, y ,z);
+    }
+
+    // Magnitude / Length
+    float length() const {
+        return std::sqrt(x * x + y * y + z * z);
+    }
+
+    // Normalization (Unit Vector)
+    Vec3 normalized() const {
+        float len = length();
+        return (len > 0.0f) ? *this / len : Vec3{0, 0, 0};
+    }
 };
+
+// --- Vector Operations ---
+
+// Dot Product: a · b
+inline float dot(const Vec3& a, const Vec3& b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+// Cross Product: a × b
+inline Vec3 cross(const Vec3& a, const Vec3& b) {
+    return {
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x
+    };
+}
+
 
 struct Surface {
     int v1, v2, v3;
@@ -40,11 +79,21 @@ int main(){
         }    
     }
 
-    
+    //todo: load the view plane - pick a view pt, point to origin
+
+    Vec3 vPt = Vec3{5.0f, 5.0f, 5.0f};
+    Vec3 origin = Vec3{0.0f, 0.0f, 0.0f};
+
+    Vec3 viewDir = (origin - vPt).normalized();
+
+    viewDir.print();
+
+
+
+
 
     // Guess this is my world now
-    cout << "This is the end, hold your breath and count to ten" << endl;
+    cout << "This is the end, hold your breath count to ten" << endl;
     return 0;
-
     
 }
