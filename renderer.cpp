@@ -127,22 +127,23 @@ int main(){
         screen[i][resolutionX] = '\0';
     }
 
+    // view ray: camera pt -> pixel see if it hits the obj
 
-    Vec3 rayDir, distanceToOrigin;
+    // ray casting loop
 
-    for (int i = 0; i < resolutionY; i++){
-        for(int j = 0; j < resolutionX; j++){
-            rayDir = pixelLocation[i][j] - vPt;
-            float distanceToOrigin = cross(rayDir, vPt).length() / vPt.length();
-            
-            // printf("%f, %f, %f \n", cross(rayDir, vPt).length(), vPt.length(), distanceToOrigin);
+    for(auto & row : pixelLocation){
+        for(Vec3 &pixel : row){
+            Vec3 viewRay = pixel - vPt;
 
-            if (distanceToOrigin < 1.3){
-                screen[i][j] ='*';
+            for(Surface &s : surfaces ){
+                
             }
 
         }
     }
+
+
+
 
     //print screen
     for (int i = 0; i < resolutionY; i++){
