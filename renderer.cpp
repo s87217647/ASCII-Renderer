@@ -97,13 +97,12 @@ int main(){
     int resolutionX = 45;
     int resolutionY = 15;
 
-    Vec3 planeStartPt = planeCenter + planeHorizontal * 3 + planeVertical * 1;
+    Vec3 planeStartPt = planeCenter + planeHorizontal * 3 + planeVertical * 2;
 
-    Vec3 xIncreamental = planeHorizontal * -2 / resolutionX; // double so planeCetner will be in the middle
-    Vec3 yIncreamental = planeVertical * -2 / resolutionY;
+    Vec3 xIncreamental = planeHorizontal * -6 / resolutionX; // double so planeCetner will be in the middle
+    Vec3 yIncreamental = planeVertical * -4 / resolutionY;
 
 
-    char screen[resolutionY][resolutionX];
     Vec3 pixelLocation[resolutionY][resolutionX];
 
     pixelLocation[0][0] = planeStartPt;
@@ -120,22 +119,25 @@ int main(){
 
 
     //initailize the screen
+    char screen[resolutionY][resolutionX + 1];
     for (int i = 0; i < resolutionY; i++){
         for(int j = 0; j < resolutionX; j++){
-            screen[i][j] == ' ';
+            screen[i][j] = '.';
         }
+        screen[i][resolutionX] = '\0';
     }
 
 
+    Vec3 rayDir, distanceToOrigin;
 
     for (int i = 0; i < resolutionY; i++){
         for(int j = 0; j < resolutionX; j++){
-            Vec3 rayDir = pixelLocation[i][j] - vPt;
+            rayDir = pixelLocation[i][j] - vPt;
             float distanceToOrigin = cross(rayDir, vPt).length() / vPt.length();
             
-            printf("%f, %f, %f \n", cross(rayDir, vPt).length(), vPt.length(), distanceToOrigin);
+            // printf("%f, %f, %f \n", cross(rayDir, vPt).length(), vPt.length(), distanceToOrigin);
 
-            if (distanceToOrigin < 2){
+            if (distanceToOrigin < 1.3){
                 screen[i][j] ='*';
             }
 
