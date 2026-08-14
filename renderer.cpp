@@ -119,20 +119,52 @@ int main(){
     }
 
 
-    for(auto row : pixelLocation){
-        for(auto px : row){
-            px.print();
+    //initailize the screen
+    for (int i = 0; i < resolutionY; i++){
+        for(int j = 0; j < resolutionX; j++){
+            screen[i][j] == ' ';
         }
     }
+
+
+
+    for (int i = 0; i < resolutionY; i++){
+        for(int j = 0; j < resolutionX; j++){
+            Vec3 rayDir = pixelLocation[i][j] - vPt;
+            float distanceToOrigin = cross(rayDir, vPt).length() / vPt.length();
+            
+            printf("%f, %f, %f \n", cross(rayDir, vPt).length(), vPt.length(), distanceToOrigin);
+
+            if (distanceToOrigin < 2){
+                screen[i][j] ='*';
+            }
+
+        }
+    }
+
+    //print screen
+    for (int i = 0; i < resolutionY; i++){
+        cout << screen[i] << endl;
+    }
+
+
+
+
+    // ray: viewPt -> pixel, if it cross the surface
+
+    // experiment, imagine we have a sphere, instead of .obj file
+    
+    
+
 
     
-    Vec3 currentPixel = planeStartPt;
+    // Vec3 currentPixel = planeStartPt;
 
-    for (int i = 0; i <= resolutionX; i++){
-        for(int j = 0; j <= resolutionY; j ++){
-
-        }
-    }
+    // for (int i = 0; i <= resolutionX; i++){
+    //     for(int j = 0; j <= resolutionY; j ++){
+            
+    //     }
+    // }
     
 
 
