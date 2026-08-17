@@ -53,6 +53,58 @@ struct Surface {
     int v1, v2, v3;
 };
 
+#define resolutionX 45
+#define resolutionY 15
+void printScreen(float screenBrightness[resolutionY][resolutionX]){
+    // find max brightness, divide it to a unit, find brighness of each spot
+
+    float maxBright = 0.0f;
+    for(int i = 0; i < resolutionY; i ++){
+        for(int j = 0; j < resolutionX; j ++){
+            maxBright = max(maxBright, screenBrightness[i][j]);
+        }
+    }
+
+
+    char screen[resolutionY][resolutionX + 1];
+    float brightnessUnit = maxBright / 3;
+    int brightness;
+    char brightnessChar;
+
+    for(int i = 0; i < resolutionY; i ++){
+        for(int j = 0; j <= resolutionX; j ++){
+            if (j == resolutionX){
+                screen[i][j] = '\0';
+                break;
+            }
+
+            brightness = screenBrightness[i][j] / brightnessUnit;
+            
+            switch (brightness){
+            case 0:
+                brightnessChar = ' ';
+                break;
+            case 1:
+                brightnessChar = '=';
+                break;
+            case 2:
+                brightnessChar = '@';
+                break;
+            
+            default:
+                break;
+            }
+            screen[i][j] = brightnessChar;
+        }
+    }
+
+    for(int i = 0; i < resolutionY; i ++){
+        cout << screen[i] << endl;
+    }
+
+}
+
+
 int main(){
     // parsing files - getting vertex and surface
     ifstream file("pyramid.obj");
@@ -81,22 +133,19 @@ int main(){
 
     //Plane coordinates setup
 
-    Vec3 vPt = Vec3{5.0f, 5.0f, 5.0f};
+    Vec3 camera = Vec3{5.0f, 5.0f, 5.0f};
     Vec3 origin = Vec3{0.0f, 0.0f, 0.0f};
 
-    Vec3 viewDir = (origin - vPt).normalized();
+    Vec3 viewDir = (origin - camera).normalized();
 
     float viewDistance = 2.5;
-    Vec3 planeCenter = vPt + (viewDir * viewDistance);
+    Vec3 planeCenter = camera + (viewDir * viewDistance);
     
     Vec3 planeHorizontal = cross(viewDir, Vec3{0.0f, 0.0f, 1.0f}).normalized();
     Vec3 planeVertical = cross(planeHorizontal, viewDir).normalized();
 
 
     // making the plane
-    int resolutionX = 45;
-    int resolutionY = 15;
-
     Vec3 planeStartPt = planeCenter + planeHorizontal * 3 + planeVertical * 2;
 
     Vec3 xIncreamental = planeHorizontal * -6 / resolutionX; // double so planeCetner will be in the middle
@@ -131,12 +180,46 @@ int main(){
 
     // ray casting loop
 
-    for(auto & row : pixelLocation){
-        for(Vec3 &pixel : row){
-            Vec3 viewRay = pixel - vPt;
+
+    const float epsilon = 1e-5f;
+
+    float screenBrightness[resolutionY][resolutionX];
+
+    for(auto & row : screenBrightness){
+        for (auto & cell : row){
+            cell = 0.0f;
+        }
+    }
+
+
+    for (int i = 0; i < resolutionY; i++){
+        for(int j = 0; j < resolutionX; j++){
+            Vec3 rayDir = (pixelLocation[i][j] - camera).normalized();
+            // ray = camera + rayDir * t 
 
             for(Surface &s : surfaces ){
-                
+                Vec3 v1 = vertices[s.v1], v2 = vertices[s.v2], v3 = vertices[s.v3];
+                Vec3 surfaceNorm = cross(v2 - v1, v3 - v2).normalized();
+                // render if ray hits the right side, within the triangle
+                if (abs(dot(surfaceNorm, rayDir)) < epsilon){ // parallel, no intersection 
+                    continue;
+                }
+
+                if(dot(rayDir, surfaceNorm) > 0 ){ 
+                    continue;
+                }
+
+                float t = dot((v1 - camera), surfaceNorm) / dot(rayDir, surfaceNorm);
+
+                Vec3 hit = camera + viewDir * t;
+                // check if the dot is within the triangle
+                Vec3 c1 = cross((v2 - v1),hit - v1), c2 = cross((v3 - v2), hit - v2), c3 = cross((v1 - v3), hit - v3);
+
+                if (dot(c1, surfaceNorm) < 0 || dot(c2, surfaceNorm) < 0 || dot(c3, surfaceNorm) < 0){
+                    screenBrightness[i][j] += abs(dot(rayDir, surfaceNorm));
+                }
+
+
             }
 
         }
@@ -145,16 +228,25 @@ int main(){
 
 
 
+    printScreen(screenBrightness);
     //print screen
-    for (int i = 0; i < resolutionY; i++){
-        cout << screen[i] << endl;
-    }
+    // for (int i = 0; i < resolutionY; i++){
+
+    //     cout << i << ": ";
+    //     for(float cell : screenBrightness[i]){
+    //         cout << cell << " ";
+    //     }
+    //     cout << endl;
+    // }
+
+    // for (int i = 0; i < resolutionY; i++){
+    //     cout << i << ": " << screen[i] << endl;
+    // }
 
 
 
 
     // ray: viewPt -> pixel, if it cross the surface
-
     // experiment, imagine we have a sphere, instead of .obj file
     
     
