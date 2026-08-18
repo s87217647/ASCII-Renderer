@@ -67,9 +67,10 @@ void printScreen(float screenBrightness[resolutionY][resolutionX]){
 
 
     char screen[resolutionY][resolutionX + 1];
-    float brightnessUnit = maxBright / 3;
+    float brightnessUnit = maxBright / 9;
     int brightness;
-    char brightnessChar;
+
+    string brightnessLevel = " .:-=+*#%@";
 
     for(int i = 0; i < resolutionY; i ++){
         for(int j = 0; j <= resolutionX; j ++){
@@ -80,21 +81,8 @@ void printScreen(float screenBrightness[resolutionY][resolutionX]){
 
             brightness = screenBrightness[i][j] / brightnessUnit;
             
-            switch (brightness){
-            case 0:
-                brightnessChar = ' ';
-                break;
-            case 1:
-                brightnessChar = '=';
-                break;
-            case 2:
-                brightnessChar = '@';
-                break;
-            
-            default:
-                break;
-            }
-            screen[i][j] = brightnessChar;
+     
+            screen[i][j] = brightnessLevel[brightness];
         }
     }
 
@@ -218,10 +206,7 @@ int main(){
                 if (dot(c1, surfaceNorm) < 0 || dot(c2, surfaceNorm) < 0 || dot(c3, surfaceNorm) < 0){
                     screenBrightness[i][j] += abs(dot(rayDir, surfaceNorm));
                 }
-
-
             }
-
         }
     }
 
