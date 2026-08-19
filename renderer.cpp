@@ -53,10 +53,13 @@ struct Surface {
     int v1, v2, v3;
 };
 
-#define resolutionX 45
-#define resolutionY 15
+#define resolutionX 120
+#define resolutionY 40
 void printScreen(float screenBrightness[resolutionY][resolutionX]){
+<<<<<<< HEAD
     
+=======
+>>>>>>> 0e9667a (working static renderer)
     float maxBright = 0.0f;
     for(int i = 0; i < resolutionY; i ++){
         for(int j = 0; j < resolutionX; j ++){
@@ -68,8 +71,13 @@ void printScreen(float screenBrightness[resolutionY][resolutionX]){
     char screen[resolutionY][resolutionX + 1];
     int brightness;
     // string brightnessLevel = " .:-=+*#%@";
+<<<<<<< HEAD
     string brightnessLevel = " .'`^:;Il!i><~+_-?][}{1)(|\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
     float brightnessUnit = maxBright / (brightnessLevel.length() + 1);
+=======
+    string brightnessLevel = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+    float brightnessUnit = maxBright / (brightnessLevel.length() - 1);
+>>>>>>> 0e9667a (working static renderer)
 
 
     for(int i = 0; i < resolutionY; i ++){
@@ -121,6 +129,7 @@ int main(){
 
     //Plane coordinates setup
 
+<<<<<<< HEAD
     Vec3 camera = Vec3{5.0f, 5.0f, 5.0f};
     Vec3 viewDir = camera.normalized() * -1;
 
@@ -128,6 +137,14 @@ int main(){
     
     // Set up view plane
     float viewDistance = 5;
+=======
+    Vec3 camera = Vec3{5.0f, 5.0f, 0.0f};
+    Vec3 viewDir = camera.normalized() * -1;
+
+    
+    // Set up view plane
+    float viewDistance = 8;
+>>>>>>> 0e9667a (working static renderer)
     Vec3 planeCenter = camera + (viewDir * viewDistance);
     
     Vec3 planeHorizontal = cross(viewDir, Vec3{0.0f, 0.0f, 1.0f}).normalized();
@@ -187,13 +204,10 @@ int main(){
                 Vec3 surfaceNorm = cross(v3 - v1, v2 - v1).normalized();
                 // render if ray hits the right side, within the triangle
 
-                if (abs(dot(surfaceNorm, rayDir)) < epsilon){ // parallel, no intersection 
-                    continue;
+                if (abs(dot(surfaceNorm, rayDir)) < epsilon || dot(rayDir, surfaceNorm) > 0){ // parallel, no intersection 
+                    continue; // skip rendering if casted ray is parallel to the plane or on the wrong side.
                 }
 
-                if(dot(rayDir, surfaceNorm) > 0 ){ 
-                    continue;
-                }
 
                 float t = dot((v1 - camera), surfaceNorm) / dot(rayDir, surfaceNorm);
                 Vec3 hit = camera + rayDir * t;
