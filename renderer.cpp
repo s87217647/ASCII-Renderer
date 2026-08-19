@@ -4,6 +4,9 @@
 #include <vector>
 #include <sstream>
 #include <cmath>
+#include <chrono>
+#include <thread>
+
 
 using namespace std;
 
@@ -48,6 +51,24 @@ inline Vec3 cross(const Vec3& a, const Vec3& b) {
     };
 }
 
+inline Vec3 rotate(Vec3 v, float angleX, float angleY, float angleZ){
+    float x1 = v.x;
+    float y1 = v.y * cos(angleX) - v.z * sin(angleX);
+    float z1 = v.y * sin(angleX) + v.z * cos(angleX);
+
+    // 2. Rotate around Y-axis (Yaw)
+    float x2 = x1 * cos(angleY) + z1 * sin(angleY);
+    float y2 = y1;
+    float z2 = -x1 * sin(angleY) + z1 * cos(angleY);
+
+    // 3. Rotate around Z-axis (Roll)
+    float x3 = x2 * cos(angleZ) - y2 * sin(angleZ);
+    float y3 = x2 * sin(angleZ) + y2 * cos(angleZ);
+    float z3 = z2;
+
+    return {x3, y3, z3};
+}
+
 
 struct Surface {
     int v1, v2, v3;
@@ -56,10 +77,6 @@ struct Surface {
 #define resolutionX 120
 #define resolutionY 40
 void printScreen(float screenBrightness[resolutionY][resolutionX]){
-<<<<<<< HEAD
-    
-=======
->>>>>>> 0e9667a (working static renderer)
     float maxBright = 0.0f;
     for(int i = 0; i < resolutionY; i ++){
         for(int j = 0; j < resolutionX; j ++){
@@ -69,34 +86,28 @@ void printScreen(float screenBrightness[resolutionY][resolutionX]){
 
 
     char screen[resolutionY][resolutionX + 1];
+    for(int i = 0; i < resolutionY; i ++){
+        screen[i][resolutionX] = '\n';
+    }
+
+
     int brightness;
     // string brightnessLevel = " .:-=+*#%@";
-<<<<<<< HEAD
-    string brightnessLevel = " .'`^:;Il!i><~+_-?][}{1)(|\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
-    float brightnessUnit = maxBright / (brightnessLevel.length() + 1);
-=======
     string brightnessLevel = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
     float brightnessUnit = maxBright / (brightnessLevel.length() - 1);
->>>>>>> 0e9667a (working static renderer)
 
 
     for(int i = 0; i < resolutionY; i ++){
-        for(int j = 0; j <= resolutionX; j ++){
-            if (j == resolutionX){
-                screen[i][j] = '\0';
-                break;
-            }
-
+        for(int j = 0; j < resolutionX; j ++){
             brightness = screenBrightness[i][j] / brightnessUnit;
-            
-     
             screen[i][j] = brightnessLevel[brightness];
         }
     }
 
     for(int i = 0; i < resolutionY; i ++){
-        cout << screen[i] << endl;
+        cout.write(screen[i], resolutionX + 1);
     }
+    cout.flush();
 
 }
 
@@ -129,22 +140,12 @@ int main(){
 
     //Plane coordinates setup
 
-<<<<<<< HEAD
-    Vec3 camera = Vec3{5.0f, 5.0f, 5.0f};
-    Vec3 viewDir = camera.normalized() * -1;
-
-    
-    
-    // Set up view plane
-    float viewDistance = 5;
-=======
     Vec3 camera = Vec3{5.0f, 5.0f, 0.0f};
     Vec3 viewDir = camera.normalized() * -1;
 
     
     // Set up view plane
-    float viewDistance = 8;
->>>>>>> 0e9667a (working static renderer)
+    float viewDistance = 10;
     Vec3 planeCenter = camera + (viewDir * viewDistance);
     
     Vec3 planeHorizontal = cross(viewDir, Vec3{0.0f, 0.0f, 1.0f}).normalized();
@@ -193,12 +194,15 @@ int main(){
         }
     }
 
+    for(Vec3 & v : vertices){
+        v = rotate(v, 0.0, 0.0, (M_PI / 180) * 70);
+    }
+
 
     for (int i = 0; i < resolutionY; i++){
         for(int j = 0; j < resolutionX; j++){
             Vec3 rayDir = (pixelLocation[i][j] - camera).normalized();
             // ray = camera + rayDir * t 
-
             for(Surface &s : surfaces ){
                 Vec3 v1 = vertices[s.v1], v2 = vertices[s.v2], v3 = vertices[s.v3];
                 Vec3 surfaceNorm = cross(v3 - v1, v2 - v1).normalized();
@@ -208,13 +212,11 @@ int main(){
                     continue; // skip rendering if casted ray is parallel to the plane or on the wrong side.
                 }
 
-
                 float t = dot((v1 - camera), surfaceNorm) / dot(rayDir, surfaceNorm);
                 Vec3 hit = camera + rayDir * t;
 
 
-
-                // check if the dot is within the triangle
+                // check if the hit is within the triangle
                 Vec3 c1 = cross((v2 - v1),hit - v1), c2 = cross((v3 - v2), hit - v2), c3 = cross((v1 - v3), hit - v3);
 
                 if (dot(c1, surfaceNorm) < 0 and dot(c2, surfaceNorm) < 0 and dot(c3, surfaceNorm) < 0){
@@ -223,51 +225,43 @@ int main(){
             }
         }
     }
+    // printScreen(screenBrightness);
 
 
 
-
-    printScreen(screenBrightness);
-    //print screen
-    // for (int i = 0; i < resolutionY; i++){
-
-    //     cout << i << ": ";
-    //     for(float cell : screenBrightness[i]){
-    //         cout << cell << " ";
-    //     }
-    //     cout << endl;
-    // }
-
-    // for (int i = 0; i < resolutionY; i++){
-    //     cout << i << ": " << screen[i] << endl;
-    // }
-
-
-
-
-    // ray: viewPt -> pixel, if it cross the surface
-    // experiment, imagine we have a sphere, instead of .obj file
+    // inplace print screen
+    // char testScreen[3][4] = {{'*', '*', '*', '\0'}, {'*', '*', '*', '\0'}, {'*', '*', '*', '\0'}};
+    const auto frameTime = chrono::milliseconds(1000 / 30);
     
-    
+    cout << "\033[?25l\033[2J";
+
+    int x = 0;
+
+    while(true){
+        auto start = chrono::high_resolution_clock::now();
+        string frame = "\033[H";
+        // string frame = "";
+
+        x += 1;
+        
+        for(int i = 0; i < 3; i ++){
+            frame += "***\n";
+        }
+        frame += char(x) + '\n';
+
+        cout.write(frame.c_str(), frame.size());
+        cout.flush();
+        auto elapsed = chrono::high_resolution_clock::now() - start;
+        
+        if(elapsed < frameTime){
+            this_thread::sleep_for(frameTime - elapsed);
+        }
+    }
 
 
-    
-    // Vec3 currentPixel = planeStartPt;
-
-    // for (int i = 0; i <= resolutionX; i++){
-    //     for(int j = 0; j <= resolutionY; j ++){
-            
-    //     }
-    // }
-    
 
 
-
-
-
-
-    // Guess this is my world now
-    cout << "This is the end, hold your breath count to ten" << endl;
+    cout << "This is the end, hold your breath count to ten?" << endl;
     return 0;
     
 }
