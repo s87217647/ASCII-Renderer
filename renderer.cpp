@@ -56,8 +56,7 @@ struct Surface {
 #define resolutionX 45
 #define resolutionY 15
 void printScreen(float screenBrightness[resolutionY][resolutionX]){
-    // find max brightness, divide it to a unit, find brighness of each spot
-
+    
     float maxBright = 0.0f;
     for(int i = 0; i < resolutionY; i ++){
         for(int j = 0; j < resolutionX; j ++){
@@ -67,10 +66,11 @@ void printScreen(float screenBrightness[resolutionY][resolutionX]){
 
 
     char screen[resolutionY][resolutionX + 1];
-    float brightnessUnit = maxBright / 8;
     int brightness;
+    // string brightnessLevel = " .:-=+*#%@";
+    string brightnessLevel = " .'`^:;Il!i><~+_-?][}{1)(|\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+    float brightnessUnit = maxBright / (brightnessLevel.length() + 1);
 
-    string brightnessLevel = " .:-=+*#%@";
 
     for(int i = 0; i < resolutionY; i ++){
         for(int j = 0; j <= resolutionX; j ++){
@@ -122,20 +122,17 @@ int main(){
     //Plane coordinates setup
 
     Vec3 camera = Vec3{5.0f, 5.0f, 5.0f};
-    Vec3 origin = Vec3{0.0f, 0.0f, 0.0f};
+    Vec3 viewDir = camera.normalized() * -1;
 
-    Vec3 viewDir = (origin - camera).normalized();
-
-    float viewDistance = 2.5;
+    
+    
+    // Set up view plane
+    float viewDistance = 5;
     Vec3 planeCenter = camera + (viewDir * viewDistance);
     
     Vec3 planeHorizontal = cross(viewDir, Vec3{0.0f, 0.0f, 1.0f}).normalized();
     Vec3 planeVertical = cross(planeHorizontal, viewDir).normalized();
-
-
-    // making the plane
     Vec3 planeStartPt = planeCenter + planeHorizontal * 3 + planeVertical * 2;
-
     Vec3 xIncreamental = planeHorizontal * -6 / resolutionX; // double so planeCetner will be in the middle
     Vec3 yIncreamental = planeVertical * -4 / resolutionY;
 
@@ -206,7 +203,7 @@ int main(){
                 // check if the dot is within the triangle
                 Vec3 c1 = cross((v2 - v1),hit - v1), c2 = cross((v3 - v2), hit - v2), c3 = cross((v1 - v3), hit - v3);
 
-                if (dot(c1, surfaceNorm) < 0 || dot(c2, surfaceNorm) < 0 || dot(c3, surfaceNorm) < 0){
+                if (dot(c1, surfaceNorm) < 0 and dot(c2, surfaceNorm) < 0 and dot(c3, surfaceNorm) < 0){
                     screenBrightness[i][j] += abs(dot(rayDir, surfaceNorm));
                 }
             }
