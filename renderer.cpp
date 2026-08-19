@@ -67,7 +67,7 @@ void printScreen(float screenBrightness[resolutionY][resolutionX]){
 
 
     char screen[resolutionY][resolutionX + 1];
-    float brightnessUnit = maxBright / 9;
+    float brightnessUnit = maxBright / 8;
     int brightness;
 
     string brightnessLevel = " .:-=+*#%@";
@@ -168,14 +168,47 @@ int main(){
 
     // ray casting loop
 
-    for(auto & row : pixelLocation){
-        for(Vec3 &pixel : row){
-            Vec3 rayDir = (pixel - vPt).normalized();
+
+    const float epsilon = 1e-5f;
+
+    float screenBrightness[resolutionY][resolutionX];
+    
+    for(auto & row : screenBrightness){
+        for (auto & cell : row){ 
+            cell = 0.0f;
+        }
+    }
+
+
+    for (int i = 0; i < resolutionY; i++){
+        for(int j = 0; j < resolutionX; j++){
+            Vec3 rayDir = (pixelLocation[i][j] - camera).normalized();
+            // ray = camera + rayDir * t 
 
             for(Surface &s : surfaces ){
                 Vec3 v1 = vertices[s.v1], v2 = vertices[s.v2], v3 = vertices[s.v3];
-                Vec3 surfaceNorm = cross(v2 - v1, v3 - v2);
-                
+                Vec3 surfaceNorm = cross(v3 - v1, v2 - v1).normalized();
+                // render if ray hits the right side, within the triangle
+
+                if (abs(dot(surfaceNorm, rayDir)) < epsilon){ // parallel, no intersection 
+                    continue;
+                }
+
+                if(dot(rayDir, surfaceNorm) > 0 ){ 
+                    continue;
+                }
+
+                float t = dot((v1 - camera), surfaceNorm) / dot(rayDir, surfaceNorm);
+                Vec3 hit = camera + rayDir * t;
+
+
+
+                // check if the dot is within the triangle
+                Vec3 c1 = cross((v2 - v1),hit - v1), c2 = cross((v3 - v2), hit - v2), c3 = cross((v1 - v3), hit - v3);
+
+                if (dot(c1, surfaceNorm) < 0 || dot(c2, surfaceNorm) < 0 || dot(c3, surfaceNorm) < 0){
+                    screenBrightness[i][j] += abs(dot(rayDir, surfaceNorm));
+                }
             }
         }
     }
@@ -183,6 +216,7 @@ int main(){
 
 
 
+    printScreen(screenBrightness);
     //print screen
     // for (int i = 0; i < resolutionY; i++){
 
