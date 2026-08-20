@@ -117,7 +117,7 @@ void printScreen(float screenBrightness[resolutionY][resolutionX]){
 
 int main(){
     // parsing files - getting vertex and surface
-    ifstream file("pyramid.obj");
+    ifstream file("torus.obj");
     string line;
 
     vector<Vec3> vertices;
@@ -143,12 +143,13 @@ int main(){
 
     //Plane coordinates setup
 
-    Vec3 camera = Vec3{5.0f, 5.0f, 5.0f};
-    Vec3 viewDir = camera.normalized() * -1;
-
+    Vec3 camera = Vec3{0.0f, 5.0f, 0.0f} * 2;
+    float viewDistance = 40.0;
+    
+    
     
     // Set up view plane
-    float viewDistance = 10;
+    Vec3 viewDir = camera.normalized() * -1;
     Vec3 planeCenter = camera + (viewDir * viewDistance);
     
     Vec3 planeHorizontal = cross(viewDir, Vec3{0.0f, 0.0f, 1.0f}).normalized();
@@ -197,10 +198,10 @@ int main(){
     const auto frameTime = chrono::milliseconds(1000 / FPS);
     
 
-    // Rotate before the main loop9
-    for(Vec3 & v : vertices){
-        v = rotate(v, (M_PI / 180) * 90, 0.0, 0.0);
-    }
+    // Rotate before the main loop
+    // for(Vec3 & v : vertices){
+    //     v = rotate(v, 0.0, (M_PI / 180) * 90, 0.0);
+    // }
 
     //main loop
     while(true){
@@ -213,7 +214,7 @@ int main(){
         }
 
         for(Vec3 & v : vertices){
-            v = rotate(v, 0.0, 0.0, (M_PI / 180) * 3);
+            v = rotate(v, (M_PI / 180) * 8, (M_PI / 180) * 5, (M_PI / 180) * 3);
         }
 
 
