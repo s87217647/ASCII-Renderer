@@ -76,6 +76,8 @@ struct Surface {
 
 #define resolutionX 120
 #define resolutionY 40
+
+
 void printScreen(float screenBrightness[resolutionY][resolutionX]){
     float maxBright = 0.0f;
     for(int i = 0; i < resolutionY; i ++){
@@ -83,32 +85,33 @@ void printScreen(float screenBrightness[resolutionY][resolutionX]){
             maxBright = max(maxBright, screenBrightness[i][j]);
         }
     }
-
-
+    
+    int brightness;
+    string brightnessLevel = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+    float brightnessUnit = maxBright / (brightnessLevel.length() - 1);
+    
+    
     char screen[resolutionY][resolutionX + 1];
     for(int i = 0; i < resolutionY; i ++){
         screen[i][resolutionX] = '\n';
     }
-
-
-    int brightness;
-    // string brightnessLevel = " .:-=+*#%@";
-    string brightnessLevel = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
-    float brightnessUnit = maxBright / (brightnessLevel.length() - 1);
-
-
+    
+    
     for(int i = 0; i < resolutionY; i ++){
         for(int j = 0; j < resolutionX; j ++){
             brightness = screenBrightness[i][j] / brightnessUnit;
             screen[i][j] = brightnessLevel[brightness];
         }
     }
+    
+    string frame = "\033[?25l\033[2J\033[3J\033[H";
 
     for(int i = 0; i < resolutionY; i ++){
-        cout.write(screen[i], resolutionX + 1);
+        frame.append(screen[i], resolutionX + 1);
     }
+    
+    cout.write(frame.c_str(), frame.length());
     cout.flush();
-
 }
 
 
@@ -140,7 +143,7 @@ int main(){
 
     //Plane coordinates setup
 
-    Vec3 camera = Vec3{5.0f, 5.0f, 0.0f};
+    Vec3 camera = Vec3{5.0f, 5.0f, 5.0f};
     Vec3 viewDir = camera.normalized() * -1;
 
     
@@ -188,76 +191,65 @@ int main(){
 
     float screenBrightness[resolutionY][resolutionX];
     
-    for(auto & row : screenBrightness){
-        for (auto & cell : row){ 
-            cell = 0.0f;
-        }
-    }
-
-    for(Vec3 & v : vertices){
-        v = rotate(v, 0.0, 0.0, (M_PI / 180) * 70);
-    }
 
 
-    for (int i = 0; i < resolutionY; i++){
-        for(int j = 0; j < resolutionX; j++){
-            Vec3 rayDir = (pixelLocation[i][j] - camera).normalized();
-            // ray = camera + rayDir * t 
-            for(Surface &s : surfaces ){
-                Vec3 v1 = vertices[s.v1], v2 = vertices[s.v2], v3 = vertices[s.v3];
-                Vec3 surfaceNorm = cross(v3 - v1, v2 - v1).normalized();
-                // render if ray hits the right side, within the triangle
-
-                if (abs(dot(surfaceNorm, rayDir)) < epsilon || dot(rayDir, surfaceNorm) > 0){ // parallel, no intersection 
-                    continue; // skip rendering if casted ray is parallel to the plane or on the wrong side.
-                }
-
-                float t = dot((v1 - camera), surfaceNorm) / dot(rayDir, surfaceNorm);
-                Vec3 hit = camera + rayDir * t;
-
-
-                // check if the hit is within the triangle
-                Vec3 c1 = cross((v2 - v1),hit - v1), c2 = cross((v3 - v2), hit - v2), c3 = cross((v1 - v3), hit - v3);
-
-                if (dot(c1, surfaceNorm) < 0 and dot(c2, surfaceNorm) < 0 and dot(c3, surfaceNorm) < 0){
-                    screenBrightness[i][j] += abs(dot(rayDir, surfaceNorm));
-                }
-            }
-        }
-    }
-    // printScreen(screenBrightness);
-
-
-
-    // inplace print screen
-    // char testScreen[3][4] = {{'*', '*', '*', '\0'}, {'*', '*', '*', '\0'}, {'*', '*', '*', '\0'}};
-    const auto frameTime = chrono::milliseconds(1000 / 30);
+    int FPS = 30;
+    const auto frameTime = chrono::milliseconds(1000 / FPS);
     
-    cout << "\033[?25l\033[2J";
 
-    int x = 0;
+    // Rotate before the main loop9
+    for(Vec3 & v : vertices){
+        v = rotate(v, (M_PI / 180) * 90, 0.0, 0.0);
+    }
 
+    //main loop
     while(true){
         auto start = chrono::high_resolution_clock::now();
-        string frame = "\033[H";
-        // string frame = "";
-
-        x += 1;
         
-        for(int i = 0; i < 3; i ++){
-            frame += "***\n";
+        for(auto & row : screenBrightness){
+            for (auto & cell : row){ 
+                cell = 0.0f;
+            }
         }
-        frame += char(x) + '\n';
 
-        cout.write(frame.c_str(), frame.size());
-        cout.flush();
+        for(Vec3 & v : vertices){
+            v = rotate(v, 0.0, 0.0, (M_PI / 180) * 3);
+        }
+
+
+        for (int i = 0; i < resolutionY; i++){
+            for(int j = 0; j < resolutionX; j++){
+                Vec3 rayDir = (pixelLocation[i][j] - camera).normalized();
+                // ray = camera + rayDir * t 
+                for(Surface &s : surfaces ){
+                    Vec3 v1 = vertices[s.v1], v2 = vertices[s.v2], v3 = vertices[s.v3];
+                    Vec3 surfaceNorm = cross(v3 - v1, v2 - v1).normalized();
+                    // render if ray hits the right side, within the triangle
+
+                    if (abs(dot(surfaceNorm, rayDir)) < epsilon || dot(rayDir, surfaceNorm) > 0){ // parallel, no intersection 
+                        continue; // skip rendering if casted ray is parallel to the plane or on the wrong side.
+                    }
+
+                    float t = dot((v1 - camera), surfaceNorm) / dot(rayDir, surfaceNorm);
+                    Vec3 hit = camera + rayDir * t;
+
+                    // check if the hit is within the triangle
+                    Vec3 c1 = cross((v2 - v1),hit - v1), c2 = cross((v3 - v2), hit - v2), c3 = cross((v1 - v3), hit - v3);
+
+                    if (dot(c1, surfaceNorm) < 0 and dot(c2, surfaceNorm) < 0 and dot(c3, surfaceNorm) < 0){
+                        screenBrightness[i][j] += abs(dot(rayDir, surfaceNorm));
+                    }
+                }
+            }
+    }
+        printScreen(screenBrightness);
+
         auto elapsed = chrono::high_resolution_clock::now() - start;
         
         if(elapsed < frameTime){
             this_thread::sleep_for(frameTime - elapsed);
         }
     }
-
 
 
 
